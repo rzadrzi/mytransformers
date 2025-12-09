@@ -4,10 +4,11 @@ import torch
 import torch.nn as nn
 import math
 from vanilla import scaled_dot_product_attention
+from typing import Tuple
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, d_model, num_heads) -> None:
+    def __init__(self, d_model: int, num_heads: int) -> None:
         """
         Multi-Head Attention layer.
 
@@ -27,7 +28,9 @@ class MultiHeadAttention(nn.Module):
         self.W_v = nn.Linear(d_model, d_model)
         self.W_o = nn.Linear(d_model, d_model)
 
-    def forward(self, query, key, value, mask=None):
+    def forward(
+        self, query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, mask=None
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass for Multi-Head Attention.
 
@@ -66,5 +69,5 @@ class MultiHeadAttention(nn.Module):
         attention_output = attention_output.view(batch_size, -1, self.d_model)
 
         # Final linear projection
-        output = self.W_o(attention_output)
+        output: torch.Tensor = self.W_o(attention_output)
         return output, attention_weights
