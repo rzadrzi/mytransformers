@@ -64,5 +64,9 @@ if __name__ == "__main__":
     x = torch.zeros(batch_size, seq_len, d_model)
     test = pe(x)
 
-    print(x)
-    print(test)
+    print(pe.pe)
+    #    print(x.size())
+    #    print(x)
+    #    print(test)
+
+    print(pe.pe[: x.size(1)])
