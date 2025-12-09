@@ -1,5 +1,5 @@
 # positional encoding
-#
+# non-learnable
 #
 
 import torch
@@ -34,10 +34,35 @@ class PositionalEncoding(nn.Module):
         pe[:, 1::2] = torch.cos(position * div_term)  # Odd dimensions: cos
 
         # Register as a buffer (not a model parameter, but part of state)
+        # If you have parameters in your model, which should be saved and restored in the state_dict,
+        # but not trained by the optimizer, you should register them as buffers.
+        # Buffers won’t be returned in model.parameters(), so that the optimizer won’t have a change to update them.
         self.register_buffer("pe", pe)
 
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Adds positional encoding to the input embeddings.
 
-p = PositionalEncoding(10, 10)
-print(p.pe)
-# print(p.position)
-# print(p.div_term)
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model)
+
+        Returns:
+            torch.Tensor: Tensor with positional encodings added, same shape as input.
+        """
+        # x shape: (B, L, D)
+        # pe shape: (L, D) → we slice up to L and add (broadcasting)
+        return x + self.pe[: x.size(1)]
+
+
+if __name__ == "__main__":
+    d_model = 10
+    max_len = 10
+    seq_len = 5
+    batch_size = 2
+
+    pe = PositionalEncoding(d_model, max_len)
+    x = torch.zeros(batch_size, seq_len, d_model)
+    test = pe(x)
+
+    print(x)
+    print(test)
