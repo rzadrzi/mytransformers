@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 from typing import Tuple
 import math
+from vanilla import Decoder, Encoder, PositionalEncoding
 
 
 class VanillaTransformer(nn.Module):
@@ -35,6 +36,22 @@ class VanillaTransformer(nn.Module):
         """
 
         super(VanillaTransformer, self).__init__()
+
+        # Input embeddings
+        self.src_embed = nn.Embedding(src_vocab_size, d_model)
+        self.tgt_embed = nn.Embedding(tgt_vocab_size, d_model)
+
+        # Positional encoding (we assume you've already implemented this)
+        self.pos_encoding = PositionalEncoding(d_model, max_seq_len, dropout)
+
+        # Encoder and Decoder stacks
+        self.encoder = Encoder(d_model, num_heads, d_ff, num_encoder_layers, dropout)
+        self.decoder = Decoder(d_model, num_heads, d_ff, num_decoder_layers, dropout)
+
+        # Final linear layer to project to vocabulary size
+        self.final_proj = nn.Linear(d_model, tgt_vocab_size)
+
+        self.d_model = d_model
 
     def forward(self, src, tgt, src_mask=None, tgt_mask=None):
         """
