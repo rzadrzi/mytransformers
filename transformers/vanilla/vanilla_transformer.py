@@ -66,4 +66,27 @@ class VanillaTransformer(nn.Module):
         Returns:
             Output tensor (batch_size, tgt_seq_len, tgt_vocab_size)
         """
-        pass  # Implementation of forward pass goes here
+        # Step 1: Embed source and target tokens
+        src_emb = self.src_embed(src) * math.sqrt(
+            self.d_model
+        )  # (batch, src_len, d_model)
+        tgt_emb = self.tgt_embed(tgt) * math.sqrt(
+            self.d_model
+        )  # (batch, tgt_len, d_model)
+
+        # Step 2: Add positional encoding
+        src_pos = self.pos_encoding(src_emb)  # (batch, src_len, d_model)
+        tgt_pos = self.pos_encoding(tgt_emb)  # (batch, tgt_len, d_model)
+
+        # Step 3: Pass through encoder
+        encoder_output = self.encoder(src_pos, src_mask)  # (batch, src_len, d_model)
+
+        # Step 4: Pass through decoder
+        decoder_output = self.decoder(
+            tgt_pos, encoder_output, src_mask, tgt_mask
+        )  # (batch, tgt_len, d_model)
+
+        # Step 5: Final linear projection to vocabulary
+        logits = self.final_proj(decoder_output)  # (batch, tgt_len, tgt_vocab_size)
+
+        return logits
