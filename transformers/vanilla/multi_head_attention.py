@@ -2,13 +2,16 @@
 #
 import torch
 import torch.nn as nn
-import math
-from vanilla import scaled_dot_product_attention
+from vanilla import scaled_dot_product_attention, head_splitter, heads_combiner
 from typing import Tuple
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, d_model: int, num_heads: int) -> None:
+    def __init__(
+        self,
+        d_model: int,  # Dimensionality of the input.
+        num_heads: int,  # The number of attention heads to split the input into.
+    ) -> None:
         """
         Multi-Head Attention layer.
 
@@ -42,18 +45,11 @@ class MultiHeadAttention(nn.Module):
             output: Tensor of shape (batch_size, seq_len, d_model)
             attention_weights: Tensor of shape (batch_size, num_heads, seq_len, seq_len)
         """
-        batch_size = query.size(0)
+        #        batch_size = query.size(0)
 
-        Q = self.W_q(query)
-        K = self.W_k(key)
-        V = self.W_v(value)
-
-        # Split into multiple heads: (batch_size, seq_len, num_heads, d_k) -> transpose
-        Q = Q.view(batch_size, -1, self.num_heads, self.d_k).transpose(
-            1, 2
-        )  # (batch, h, seq, d_k)
-        K = K.view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
-        V = V.view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
+        Q = head_splitter(self.W_q(query), self.num_heads, self.d_k)
+        K = head_splitter(self.W_k(key), self.num_heads, self.d_k)
+        V = head_splitter(self.W_v(value), self.num_heads, self.d_k)
 
         # Apply scaled dot-product attention
         if mask is not None:
@@ -64,10 +60,6 @@ class MultiHeadAttention(nn.Module):
             Q, K, V, mask
         )
 
-        # Concatenate heads: (batch, h, seq, d_k) -> (batch, seq, h*d_k)
-        attention_output = attention_output.transpose(1, 2).contiguous()
-        attention_output = attention_output.view(batch_size, -1, self.d_model)
-
         # Final linear projection
-        output: torch.Tensor = self.W_o(attention_output)
+        output: torch.Tensor = self.W_o(heads_combiner(attention_output, self.d_model))
         return output, attention_weights
