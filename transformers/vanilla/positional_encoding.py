@@ -51,7 +51,7 @@ class PositionalEncoding(nn.Module):
         """
         # x shape: (B, L, D)
         # pe shape: (L, D) → we slice up to L and add (broadcasting)
-        return x + self.pe[: x.size(1)]
+        return x + self.pe[:, : x.size(1)]
 
 
 if __name__ == "__main__":
