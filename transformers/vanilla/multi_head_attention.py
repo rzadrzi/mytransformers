@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 from typing import Tuple
+import math
 
 
 def scaled_dot_product_attention(query, key, value, mask=None):
