@@ -1,6 +1,5 @@
 # encoder.py
 #
-#
 import torch.nn as nn
 from vanilla import MultiHeadAttention, PositionWiseFeedForward
 

@@ -1,7 +1,6 @@
 # positional encoding
 # non-learnable
 #
-
 import torch
 import torch.nn as nn
 import math
