@@ -67,3 +67,38 @@ class DecoderLayer(nn.Module):
 
         return x
 
+
+class Decoder(nn.Module):
+    def __init__(self, d_model, num_heads, d_ff, num_layers, dropout=0.1):
+        """
+        Full Transformer Decoder: a stack of N DecoderLayers.
+        Args:
+            d_model: Model dimension (e.g., 512)
+            num_heads: Number of attention heads (e.g., 8)
+            d_ff: Hidden dimension of feed-forward layers (e.g., 2048)
+            num_layers: Number of decoder layers (N, e.g., 6)
+            dropout: Dropout rate (default: 0.1)
+        """
+
+        super(Decoder, self).__init__()
+        self.layers = nn.ModuleList(
+            [DecoderLayer(d_model, num_heads, d_ff, dropout) for _ in range(num_layers)]
+        )
+        self.norm = nn.LayerNorm(d_model)
+
+    def forward(self, x, encoder_output, src_mask=None, tgt_mask=None):
+        """
+        Forward pass through all decoder layers.
+        Args:
+            x: Decoder input (batch_size, tgt_seq_len, d_model)
+            encoder_output: Output from encoder (batch_size, src_seq_len, d_model)
+            src_mask: Source padding mask (batch_size, 1, src_seq_len)
+            tgt_mask: Target mask (causal + padding), (batch_size, tgt_seq_len, tgt_seq_len)
+
+        Returns:
+            Output tensor (batch_size, tgt_seq_len, d_model)
+        """
+
+        for layer in self.layers:
+            x = layer(x, encoder_output, src_mask, tgt_mask)
+        return self.norm(x)
