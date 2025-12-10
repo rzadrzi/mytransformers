@@ -56,3 +56,39 @@ class EncoderLayer(nn.Module):
         x = self.norm2(x + ff_output)  # Shape: (batch, seq_len, d_model)
 
         return x
+
+
+
+class Encoder(nn.Module):
+    def __init__(self, d_model, num_heads, d_ff, num_layers, dropout=0.1):
+        """
+        Full Transformer Encoder: a stack of N EncoderLayers.
+        
+        Args:
+            d_model: Model dimension (e.g., 512)
+            num_heads: Number of attention heads (e.g., 8)
+            d_ff: Hidden dimension of feed-forward layers (e.g., 2048)
+            num_layers: Number of encoder layers (N, e.g., 6)
+            dropout: Dropout rate (default: 0.1)
+        """
+        super(Encoder, self).__init__()
+        self.layers = nn.ModuleList([
+            EncoderLayer(d_model, num_heads, d_ff, dropout)
+            for _ in range(num_layers)
+        ])
+        self.norm = nn.LayerNorm(d_model)  # Final layer norm (optional but common)
+
+    def forward(self, x, src_mask=None):
+        """
+        Forward pass through all encoder layers.
+        
+        Args:
+            x: Input tensor (batch_size, src_seq_len, d_model)
+            src_mask: Padding mask for source (batch_size, 1, src_seq_len)
+            
+        Returns:
+            Output tensor (batch_size, src_seq_len, d_model)
+        """
+        for layer in self.layers:
+            x = layer(x, src_mask)
+        return self.norm(x)  # Apply final layer normalization
