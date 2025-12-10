@@ -7,7 +7,7 @@ import math
 
 
 class PositionalEncoding(nn.Module):
-    def __init__(self, d_model: int, max_len: int) -> None:
+    def __init__(self, d_model: int, max_len: int, dropout: float = 0.1) -> None:
         """
         Initialize Positional Encoding Module
 
@@ -17,6 +17,8 @@ class PositionalEncoding(nn.Module):
 
         """
         super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(dropout)
+
         # Create a matrix of shape (max_len, d_model)
         pe = torch.zeros(max_len, d_model)
 
@@ -50,7 +52,8 @@ class PositionalEncoding(nn.Module):
         """
         # x shape: (B, L, D)
         # pe shape: (L, D) → we slice up to L and add (broadcasting)
-        return x + self.pe[:, : x.size(1)]
+        x = x + self.pe[:, : x.size(1), :]
+        return self.dropout(x)
 
 
 if __name__ == "__main__":
@@ -68,4 +71,4 @@ if __name__ == "__main__":
     #    print(x)
     #    print(test)
 
-    print(pe.pe[: x.size(1)])
+#    print(pe.pe[: x.size(1)])
