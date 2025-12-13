@@ -10,6 +10,7 @@ dependencies = [
     "jax[cuda13]>=0.8.1",
     "jaxlib>=0.8.1",
     "jaxtyping>=0.3.3",
+    "optax>=0.2.6",
     "torch>=2.9.1",
     "torchaudio>=2.9.1",
     "torchvision>=0.24.1",
