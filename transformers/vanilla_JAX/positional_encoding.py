@@ -7,7 +7,9 @@ from flax import nnx
 
 
 class PositionalEncoding(nnx.Module):
-    def setup(self, d_model: int, max_len: int, base=1000.0, dtype=jnp.float32) -> None:
+    def __init__(
+        self, d_model: int, max_len: int, base=1000.0, dtype=jnp.float32
+    ) -> None:
         assert d_model % 2 == 0, "d_model must be even in PositionalEncoding"
         pos = jnp.arange(max_len, dtype=dtype)[:, None]
         i = jnp.arange(0, d_model, 2, dtype=dtype)[None, :]
