@@ -6,7 +6,9 @@ from typing import Tuple
 import math
 
 
-def scaled_dot_product_attention(query, key, value, mask=None):
+def scaled_dot_product_attention(
+    query, key, value, mask=None
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Computes scaled dot-product attention.
 
@@ -29,7 +31,6 @@ def scaled_dot_product_attention(query, key, value, mask=None):
     attention_weights = torch.softmax(scores, dim=-1)
     output = torch.matmul(attention_weights, value)
     return output, attention_weights
-
 
 
 def head_splitter(input: torch.Tensor, num_heads: int, d_k: int) -> torch.Tensor:
